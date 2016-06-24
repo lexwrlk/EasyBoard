@@ -16,9 +16,10 @@
     <div class="sectionBody">
      
     <script language="JavaScript" type="text/javascript">
-    function postForm(action, id){
+    function postForm(action, id, next){
     document.module.action.value=action;
     if (id != null) document.module.item_id.value=id;
+    if (next != null) document.module.gonext.value=next;
     document.module.submit();
     }
 	function postFormPag(boardPage){
@@ -60,4 +61,5 @@ $(function() {
     <form name="module" method="post" enctype="multipart/form-data">
     <input name="action" type="hidden" value="" />
     <input name="item_id" type="hidden" value="" />
+    <input name="gonext" type="hidden" value="" />
 	<input name="boardPage" type="hidden" value="" />
