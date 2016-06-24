@@ -11,6 +11,10 @@
 	$template = str_replace("[+site_url+]", $modx->config['site_url'], $template);
 	echo $template;
      
+    if ($_GET["add"] && $_POST['action'] != "update") {
+	$_POST['action'] = "add";
+	$_POST['item_id'] = $_GET["add"];
+    }
     $action = isset($_POST['action']) ? $_POST['action']:'';
      
     switch($action) {
@@ -103,7 +107,9 @@
 	echo $template;
 	
 	echo '
-    <button class="styler" href="#" onclick="postForm(\''.$save.'\',\''.$id.'\');return false;">Сохранить</button>
+    <button class="styler" href="#" onclick="postForm(\''.$save.'\',\''.$id.'\',0);return false;">Сохранить</button>
+    &nbsp;&nbsp;
+    <button class="styler" style="width: 170px;" href="#" onclick="postForm(\''.$save.'\',\''.$id.'\',1);return false;">Сохранить + next</button>
     &nbsp;&nbsp;
     <a href="#" onclick="postForm(\'reload\',null);return false;">Отмена</a>
     ';
@@ -146,7 +152,23 @@
 	$fields['allcity'] = (isset($_POST[allcity])) ? 1: 0;
 	if ( isset($_FILES['image']) ) $fields['image'] = loadImage($imageDir);
     $query = $modx->db->update($fields, $mod_table, "id = ".(int)$_POST['item_id']."");
-    header("Location: $_SERVER[REQUEST_URI]");
+
+    $sql = "SELECT id FROM $mod_table WHERE id = (SELECT MIN(id) FROM $mod_table WHERE id > " . $_POST['item_id'] . ")";
+    $result = $modx->db->query($sql);
+    $stickers = $modx->db->getValue( $result );
+	
+    parse_str(html_entity_decode($_SERVER['QUERY_STRING']),$url);
+    if ($_POST["gonext"] == 1) {
+	    $url["add"] = $stickers;
+    } else {
+	    unset($url["add"]);
+    }
+    $query = http_build_query($url);
+
+
+
+    $next = $_SERVER["DOCUMENT_URI"] ."?". $query;
+    header("Location: $next");
     break;
      
      
