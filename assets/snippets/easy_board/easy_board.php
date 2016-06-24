@@ -279,9 +279,9 @@ case "add":
 	if ( $LoginUserID !== NULL ){
 		if ( $_POST['act'] == "add" ){
 			$fields = array(
-						'pagetitle'  => $modx->db->escape( $_POST[pagetitle]),  
-						'content' => $modx->db->escape( $_POST[content]),  
-						'contact'  => $modx->db->escape( $_POST[contact]),  
+						'pagetitle'  => $modx->db->escape( strip_tags($_POST[pagetitle])),
+						'content' => $modx->db->escape( strip_tags($_POST[content])),
+						'contact'  => $modx->db->escape( strip_tags($_POST[contact])),
 						'price' => (int)$_POST[price],
 						'parent' => (int)$_POST[parent],
 						'city' => (int)$_POST[city],
