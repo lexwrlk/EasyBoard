@@ -2,23 +2,33 @@
 #######################
 # Easy Board v 1.05
 #######################
-function genOptionList($parentID, $currentID, $recursion = true, $sort = "pagetitle"){
-	global $modx;
-	
-	$childrens = array();
-	$childrens = $modx->getAllChildren($parentID, $sort, "ASC", "id, pagetitle, isfolder");
-	$tmp = "";
-	foreach ($childrens as $value){
-		if ( $value['isfolder'] == 1 AND $recursion) $tmp .="<optgroup label=\"".$value['pagetitle']."\">";
-		if ( $value['isfolder'] == 0 OR $recursion === false) {
-			$tmp .= "<option value=".$value['id'];
-			if ( $value['id']==$currentID ) $tmp .= " selected";
-			$tmp .= ">".$value['pagetitle']."</option>\n";
-			}
-		if ( $value['isfolder'] == 1 AND $recursion ) $tmp .= genOptionList($value['id'], $currentID);
-		if ( $value['isfolder'] == 1 AND $recursion ) $tmp .= "</optgroup>";
+function br2nl($str) {
+	     return preg_replace('#<br\s*/?>#i', "\n", $str);
+}
+function genOptionList($parentID, $currentID, $recursion = true, $sort = "pagetitle", $level = -2){
+        global $modx;
+        $level = $level+1;
+        $spacer = "&nbsp;&nbsp;&nbsp;";
+        if ($level >= 0) {
+        $indent = str_repeat($spacer,$level);
+        }
+
+        $childrens = array();
+        $childrens = $modx->getAllChildren($parentID, $sort, "ASC", "id, menutitle, pagetitle, isfolder");
+        $tmp = "";
+        foreach ($childrens as $value){
+                $title = ($value['menutitle'] != "") ? $value['menutitle'] : $value['pagetitle'];
+                if ($level ==-1) $tmp .="<optgroup label=\"".$title."\">";
+                if ($level !=-1) {
+                        $tmp .= "<option value=".$value['id'];
+                        if ($value['isfolder'] == 1) $tmp .= " class='ul'";
+                        if ( $value['id']==$currentID ) $tmp .= " selected";
+                        $tmp .= ">". $indent .$title."</option>\n";
+                }
+                if ( $value['isfolder'] == 1 AND $recursion ) $tmp .= genOptionList($value['id'], $currentID,$recursion,$sort,$level);
+                if ( $value['isfolder'] == 1 AND $recursion AND $level ==-1) $tmp .="</optgroup>";
     }
-	return $tmp;
+        return $tmp;
 	}
 
 function genOptionListContext($contexts = array(), $currentKey){
@@ -100,7 +110,7 @@ function genImageForm($image, $id) {
 
 function loadImage($imageDir, $size = 1048576){
 	$newname = "";
-	if ( isset($_FILES['image']) AND trim( $_FILES['image']['name'] ) != "" AND $_FILES['image']['size'] <= $size){
+	if ( isset($_FILES['image']) AND trim( $_FILES['image']['name'] ) != "" AND $_FILES['image']['size'] <= $size AND is_image($_FILES['image']['tmp_name'])){
 		$newname = time();
 
 		if (substr($_FILES['image']['name'], -4) === ".jpg"){
@@ -128,5 +138,11 @@ function delImage($id, $mod_table){
         $image = $modx->db->getValue($res);
 	if ( is_file($modx->config['base_path'].$image) ) unlink ($modx->config['base_path'].$image);
     }	
+}
+function is_image($filename) {
+	$is = @getimagesize($filename);
+	if ( !$is ) return false;
+	elseif ( !in_array($is[2], array(1,2,3)) ) return false;
+	else return true;
 }
 ?>
