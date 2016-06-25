@@ -5,20 +5,31 @@
 function genOptionList($parentID, $currentID, $recursion = true, $sort = "pagetitle"){
 	global $modx;
 	
-	$childrens = array();
-	$childrens = $modx->getAllChildren($parentID, $sort, "ASC", "id, pagetitle, isfolder");
-	$tmp = "";
-	foreach ($childrens as $value){
-		if ( $value['isfolder'] == 1 AND $recursion) $tmp .="<optgroup label=\"".$value['pagetitle']."\">";
-		if ( $value['isfolder'] == 0 OR $recursion === false) {
-			$tmp .= "<option value=".$value['id'];
-			if ( $value['id']==$currentID ) $tmp .= " selected";
-			$tmp .= ">".$value['pagetitle']."</option>\n";
-			}
-		if ( $value['isfolder'] == 1 AND $recursion ) $tmp .= genOptionList($value['id'], $currentID);
-		if ( $value['isfolder'] == 1 AND $recursion ) $tmp .= "</optgroup>";
+        global $modx;
+        $level = $level+1;
+        $spacer = "&nbsp;&nbsp;&nbsp;";
+        if ($level >= 0) {
+        $indent = str_repeat($spacer,$level);
+        }
+
+        $childrens = array();
+        $childrens = $modx->getAllChildren($parentID, $sort, "ASC", "id, menutitle, pagetitle, isfolder");
+        $tmp = "";
+        foreach ($childrens as $value){
+                $title = ($value['menutitle'] != "") ? $value['menutitle'] : $value['pagetitle'];
+                if ($level ==-1) $tmp .="<optgroup label=\"".$title."\">";
+                if ($level !=-1) {
+                        $tmp .= "<option value=".$value['id'];
+                        if ($value['isfolder'] == 1) $tmp .= " class='ul'";
+                        if ( $value['id']==$currentID ) $tmp .= " selected";
+                        $tmp .= ">". $indent .$title."</option>\n";
+                }
+                if ( $value['isfolder'] == 1 AND $recursion ) $tmp .= genOptionList($value['id'], $currentID,$recursion,$sort,$level);
+                if ( $value['isfolder'] == 1 AND $recursion AND $level ==-1) $tmp .="</optgroup>";
     }
-	return $tmp;
+        return $tmp;
+
+
 	}
 
 function genOptionListContext($contexts = array(), $currentKey){
