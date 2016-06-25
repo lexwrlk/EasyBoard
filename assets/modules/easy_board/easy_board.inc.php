@@ -3,9 +3,8 @@
 # Easy Board v 1.05
 #######################
 function genOptionList($parentID, $currentID, $recursion = true, $sort = "pagetitle"){
-	global $modx;
-	
         global $modx;
+        
         $level = $level+1;
         $spacer = "&nbsp;&nbsp;&nbsp;";
         if ($level >= 0) {
