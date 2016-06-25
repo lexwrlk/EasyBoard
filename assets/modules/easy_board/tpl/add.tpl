@@ -10,7 +10,7 @@
 	<div class="sec maxheight">
 		<p>Рубрика:</p>
 		<select name="parent">
-			[+parent+]				
+		[+parent+]				
 		</select>
 	</div>
 </td>
