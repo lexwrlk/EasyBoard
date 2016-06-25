@@ -97,8 +97,8 @@
 	$template = str_replace("[+contact+]", $contact, $template);
 	$template = str_replace("[+price+]", $price, $template);
 	$template = str_replace("[+hit+]", $hit, $template);
-	$template = str_replace("[+parent+]", genOptionList($categoryID, $parent), $template);
-	$template = str_replace("[+city+]", genOptionList($cityID, $city, false), $template);
+	$template = str_replace("[+parent+]", genOptionList($categoryID, $parent,true,"menuindex"), $template);
+	$template = str_replace("[+city+]", genOptionList($cityID, $city, false,"menuindex", -1), $template);
 	$template = str_replace("[+contexts+]", genOptionListContext($contexts, $context), $template);
 	$template = str_replace("[+published+]", genCheckbox($published), $template);
 	$template = str_replace("[+allcity+]", genCheckbox($allcity), $template);
@@ -119,16 +119,16 @@
     case 'save':
 	$fields = array();
 	$fields = array('pagetitle'  => $modx->db->escape( $_POST[pagetitle]),  
-                    'content' => $modx->db->escape( $_POST[content]),  
-                    'contact'  => $modx->db->escape( $_POST[contact]),  
-                    'price' => (int)$_POST[price],
-					'parent' => (int)$_POST[parent],
-					'city' => (int)$_POST[city],
-					'hit' => (int)$_POST[hit],					
-					'createdby' => (int)$_POST[createdby],
-					'image' => loadImage($imageDir),
-					'createdon' => time(),
-					'context' => $modx->db->escape( $_POST[context])
+			'content' => $modx->db->escape( br2nl($_POST[content])),  
+			'contact'  => $modx->db->escape( $_POST[contact]),  
+			'price' => (int)$_POST[price],
+			'parent' => (int)$_POST[parent],
+			'city' => (int)$_POST[city],
+			'hit' => (int)$_POST[hit],					
+			'createdby' => (int)$_POST[createdby],
+			'image' => loadImage($imageDir),
+			'createdon' => time(),
+			'context' => $modx->db->escape( $_POST[context])
                     );
 	$fields['published'] = (isset($_POST[published])) ? 1: 0;
 	$fields['allcity'] = (isset($_POST[allcity])) ? 1: 0;
@@ -139,14 +139,14 @@
     //Обновление записи в БД
     case 'update':
     $fields = array('pagetitle'  => $modx->db->escape( $_POST[pagetitle]),  
-                    'content' => $modx->db->escape( $_POST[content]),  
-                    'contact'  => $modx->db->escape( $_POST[contact]),  
-                    'price' => (int)$_POST[price],
-					'parent' => (int)$_POST[parent],
-					'city' => (int)$_POST[city],
-					'hit' => (int)$_POST[hit],
-					'createdby' => (int)$_POST[createdby],
-					'context' => $modx->db->escape( $_POST[context])
+		    'content' => $modx->db->escape( br2nl($_POST[content])),  
+		    'contact'  => $modx->db->escape( $_POST[contact]),  
+		    'price' => (int)$_POST[price],
+		    'parent' => (int)$_POST[parent],
+		    'city' => (int)$_POST[city],
+		    'hit' => (int)$_POST[hit],
+		    'createdby' => (int)$_POST[createdby],
+		    'context' => $modx->db->escape( $_POST[context])
                     );
 	$fields['published'] = (isset($_POST[published])) ? 1: 0;
 	$fields['allcity'] = (isset($_POST[allcity])) ? 1: 0;
@@ -157,13 +157,13 @@
     $result = $modx->db->query($sql);
     $stickers = $modx->db->getValue( $result );
 	
-    parse_str(html_entity_decode($_SERVER['QUERY_STRING']),$url);
-    if ($_POST["gonext"] == 1) {
-	    $url["add"] = $stickers;
-    } else {
-	    unset($url["add"]);
-    }
-    $query = http_build_query($url);
+	parse_str(html_entity_decode($_SERVER['QUERY_STRING']),$url);
+	if ($_POST["gonext"] == 1) {
+		$url["add"] = $stickers;
+	} else {
+		unset($url["add"]);
+	}
+	$query = http_build_query($url);
 
 
 
@@ -306,7 +306,7 @@
 			LEFT JOIN ".$dbprefix."site_content sc2 ON sc2.id = $mod_table.city
 			LEFT JOIN ".$dbprefix."web_users wb ON wb.id = $mod_table.createdby
 			$where
-			ORDER BY $mod_table.createdon DESC
+			ORDER BY $mod_table.id DESC
 			LIMIT $pageLimit";
 	$data_query = $modx->db->query($sql);
 	
